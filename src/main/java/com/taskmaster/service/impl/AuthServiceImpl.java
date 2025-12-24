@@ -1,17 +1,17 @@
-package com.taskmaster.feature.auth.service.impl;
+package com.taskmaster.service.impl;
 
 import com.taskmaster.common.enums.UserRole;
 import com.taskmaster.common.exception.custom.BadRequestException;
 import com.taskmaster.common.exception.custom.DuplicateResourceException;
 import com.taskmaster.config.security.JwtTokenProvider;
-import com.taskmaster.feature.auth.dto.request.LoginRequest;
-import com.taskmaster.feature.auth.dto.request.RegisterRequest;
-import com.taskmaster.feature.auth.dto.response.AuthResponse;
-import com.taskmaster.feature.auth.service.AuthService;
-import com.taskmaster.feature.user.dto.response.UserResponse;
-import com.taskmaster.feature.user.entity.UserEntity;
-import com.taskmaster.feature.user.mapper.UserMapper;
-import com.taskmaster.feature.user.repository.UserRepository;
+import com.taskmaster.dto.request.LoginRequest;
+import com.taskmaster.dto.request.RegisterRequest;
+import com.taskmaster.dto.response.AuthResponse;
+import com.taskmaster.service.AuthService;
+import com.taskmaster.dto.response.UserResponse;
+import com.taskmaster.entity.UserEntity;
+import com.taskmaster.mapper.UserMapper;
+import com.taskmaster.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

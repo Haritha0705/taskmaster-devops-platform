@@ -1,4 +1,4 @@
-package com.taskmaster.feature.auth.model;
+package com.taskmaster.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

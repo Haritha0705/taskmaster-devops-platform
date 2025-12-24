@@ -1,6 +1,5 @@
-package com.taskmaster.feature.auth.dto.response;
+package com.taskmaster.dto.response;
 
-import com.taskmaster.feature.user.dto.response.UserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,7 +1,7 @@
-package com.taskmaster.feature.auth.mapper;
+package com.taskmaster.mapper;
 
-import com.taskmaster.feature.auth.entity.AuthEntity;
-import com.taskmaster.feature.auth.model.AuthModel;
+import com.taskmaster.entity.AuthEntity;
+import com.taskmaster.model.AuthModel;
 
 /**
  * Manual mapper between AuthEntity and AuthModel.

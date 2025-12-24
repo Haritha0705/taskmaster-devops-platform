@@ -1,6 +1,6 @@
 package com.taskmaster.config.security;
 
-import com.taskmaster.feature.user.repository.UserRepository;
+import com.taskmaster.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

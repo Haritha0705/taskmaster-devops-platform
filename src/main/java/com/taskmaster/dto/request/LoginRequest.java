@@ -1,4 +1,4 @@
-package com.taskmaster.feature.auth.dto.request;
+package com.taskmaster.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

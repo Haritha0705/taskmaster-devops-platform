@@ -46,6 +46,11 @@ public class JwtTokenProvider {
         return getClaims(token).getSubject();
     }
 
+    // EXTRACT EXPIRATION (added to support JwtBlacklistService)
+    public Date extractExpiration(String token) {
+        return getClaims(token).getExpiration();
+    }
+
     // VALIDATE TOKEN
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String username = extractUsername(token);

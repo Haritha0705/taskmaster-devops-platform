@@ -1,6 +1,6 @@
-package com.taskmaster.feature.auth.repository;
+package com.taskmaster.repository;
 
-import com.taskmaster.feature.auth.entity.AuthEntity;
+import com.taskmaster.entity.AuthEntity;
 
 /**
  * Placeholder repository for auth-related data.

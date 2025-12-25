@@ -1,5 +1,6 @@
 package com.taskmaster.entity;
 
+import com.taskmaster.common.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,5 +21,6 @@ public class AuthEntity {
     private String username;
     private String email;
     private String password;
+    private UserRole role;
     private Instant createdAt;
 }

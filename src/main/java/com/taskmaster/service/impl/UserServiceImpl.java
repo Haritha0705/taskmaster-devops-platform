@@ -92,11 +92,21 @@ public class UserServiceImpl implements UserService {
         log.info("Deleting user with id: {}", id);
 
         UserEntity user = findUserById(id);
-        user.setIsActive(false); // Soft delete
-        userRepository.save(user);
 
+        Long currentUserId = getCurrentUserId();
+        user.softDelete(currentUserId);
+
+        userRepository.save(user);
         log.info("User soft-deleted successfully: {}", id);
     }
+
+    @Override
+    public void restoreUser(Long id) {
+        UserEntity user = findUserById(id);
+        user.restore();
+        userRepository.save(user);
+    }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -144,4 +154,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
     }
+
+    private Long getCurrentUserId() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return findUserByEmail(email).getId();
+    }
+
 }

@@ -42,6 +42,8 @@ public interface UserService {
      */
     void deleteUser(Long id);
 
+    void restoreUser(Long id);
+
     /**
      * Get all users with pagination
      */

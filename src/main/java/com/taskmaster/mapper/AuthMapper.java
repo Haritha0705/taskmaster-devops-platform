@@ -1,29 +1,16 @@
 package com.taskmaster.mapper;
 
-import com.taskmaster.entity.AuthEntity;
-import com.taskmaster.model.AuthModel;
+import com.taskmaster.dto.request.RegisterRequest;
+import com.taskmaster.entity.UserEntity;
+import org.mapstruct.Mapper;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-/**
- * Manual mapper between AuthEntity and AuthModel.
- * Kept simple to avoid introducing MapStruct generation complexity.
- */
-public class AuthMapper {
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+public interface AuthMapper {
 
-    public AuthModel toModel(AuthEntity entity) {
-        if (entity == null) return null;
-        return AuthModel.builder()
-                .username(entity.getUsername())
-                .email(entity.getEmail())
-                .password(entity.getPassword())
-                .build();
-    }
+    /**
+     * Map RegisterRequest -> UserEntity (used during registration)
+     */
+    UserEntity toUserEntity(RegisterRequest request);
 
-    public AuthEntity toEntity(AuthModel model) {
-        if (model == null) return null;
-        return AuthEntity.builder()
-                .username(model.getUsername())
-                .email(model.getEmail())
-                .password(model.getPassword())
-                .build();
-    }
 }

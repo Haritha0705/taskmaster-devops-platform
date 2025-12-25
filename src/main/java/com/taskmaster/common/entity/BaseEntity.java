@@ -1,64 +1,84 @@
 package com.taskmaster.common.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * Base entity class with common auditing fields
- * All entities should extend this class
+ * Base entity class with common auditing fields.
+ * All entities should extend this class.
+ * Includes soft delete, active flag, and created/updated timestamps.
  */
+@MappedSuperclass
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
-public abstract class BaseEntity implements Serializable {
+@AllArgsConstructor
+public abstract class BaseEntity {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @CreatedBy
-    @Column(name = "created_by", updatable = false)
-    private String createdBy;
-
-    @LastModifiedBy
-    @Column(name = "updated_by")
-    private String updatedBy;
-
-    @Builder.Default
-    @Column(name = "is_active")
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
+
+    @Column(name = "deleted_by")
+    private Long deletedBy;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    /**
+     * Automatically set timestamps before persisting
+     */
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        updatedAt = createdAt;
     }
 
+    /**
+     * Automatically update the updatedAt timestamp before updating
+     */
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    /**
+     * Soft delete helper method
+     */
+    public void softDelete(Long deletedById) {
+        this.isDeleted = true;
+        this.deletedBy = deletedById;
+        this.deletedAt = LocalDateTime.now();
+        this.isActive = false;
+    }
+
+    /**
+     * Restore soft deleted entity
+     */
+    public void restore() {
+        this.isDeleted = false;
+        this.deletedBy = null;
+        this.deletedAt = null;
+        this.isActive = true;
     }
 }

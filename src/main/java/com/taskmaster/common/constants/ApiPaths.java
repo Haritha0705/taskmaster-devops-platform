@@ -27,4 +27,5 @@ public class ApiPaths {
     public static final String TASKS = API_V1 + "/tasks";
     public static final String TASK_BY_ID = "/{id}";
     public static final String TASK_SEARCH = "/search";
+    public static final String TASK_FILTER = "/filter";
 }

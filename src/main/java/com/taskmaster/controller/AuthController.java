@@ -27,7 +27,7 @@ public class AuthController {
     private final AuthService authService;
     private final JwtBlacklistService jwtBlacklistService;
 
-    @PostMapping("/register")
+    @PostMapping(ApiPaths.AUTH_REGISTER)
     @Operation(summary = "Register", description = "Register a new user account")
     public ResponseEntity<ApiResponse<AuthResponse>> register(
             @Valid @RequestBody RegisterRequest request) {
@@ -37,7 +37,7 @@ public class AuthController {
                 .body(ApiResponse.success("Registration successful", response));
     }
 
-    @PostMapping("/login")
+    @PostMapping(ApiPaths.AUTH_LOGIN)
     @Operation(summary = "Login", description = "Authenticate with email and password")
     public ResponseEntity<ApiResponse<AuthResponse>> login(
             @Valid @RequestBody LoginRequest request) {
@@ -46,7 +46,7 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
 
-    @PostMapping("/refresh-token")
+    @PostMapping(ApiPaths.AUTH_REFRESH)
     @Operation(summary = "Refresh Token", description = "Get new access token using refresh token")
     public ResponseEntity<ApiResponse<AuthResponse>> refreshToken(
             @RequestHeader("X-Refresh-Token") String refreshToken) {
@@ -55,7 +55,7 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Token refreshed", response));
     }
 
-    @PostMapping("/logout")
+    @PostMapping(ApiPaths.AUTH_LOGOUT)
     @Operation(summary = "Logout", description = "Logout user and blacklist JWT token")
     public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
 

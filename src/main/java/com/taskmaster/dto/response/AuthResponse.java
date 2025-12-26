@@ -1,9 +1,6 @@
 package com.taskmaster.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Builder
@@ -17,7 +14,12 @@ public class AuthResponse {
     private Long expiresIn;
     private UserResponse user;
 
-    public static AuthResponse of(String accessToken, String refreshToken, Long expiresIn, UserResponse user) {
+    public static AuthResponse of(
+            String accessToken,
+            String refreshToken,
+            Long expiresIn,
+            UserResponse user) {
+
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

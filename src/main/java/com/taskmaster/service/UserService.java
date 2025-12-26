@@ -49,6 +49,8 @@ public interface UserService {
      */
     PagedResponse<UserResponse> getAllUsers(Pageable pageable);
 
+    PagedResponse<UserResponse> getAllActiveUsers(Pageable pageable);
+
     /**
      * Search users
      */

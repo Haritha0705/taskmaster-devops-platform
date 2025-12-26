@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,6 +79,14 @@ public class TaskServiceImpl implements TaskService {
         task.setCreatedBy(currentUser);
         task.setUpdatedBy(currentUser);
 
+        // Ensure audit flags are initialized to non-null values to satisfy DB constraints
+        if (task.getIsActive() == null) {
+            task.setIsActive(true);
+        }
+        if (task.getIsDeleted() == null) {
+            task.setIsDeleted(false);
+        }
+
         TaskEntity saved = taskRepository.save(task);
         return taskMapper.toResponse(saved);
     }
@@ -104,7 +113,9 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void deleteTask(Long id) {
         TaskEntity task = findTaskById(id);
-        task.softDelete(securityService.getCurrentUserId());
+        task.softDelete(getCurrentUserId());
+        task.setIsActive(false);
+        task.setIsDeleted(true);
         taskRepository.save(task);
     }
 
@@ -112,6 +123,8 @@ public class TaskServiceImpl implements TaskService {
     public void restoreTask(Long id) {
         TaskEntity task = findTaskById(id);
         task.restore();
+        task.setIsActive(true);
+        task.setIsDeleted(false);
         taskRepository.save(task);
     }
 
@@ -169,5 +182,23 @@ public class TaskServiceImpl implements TaskService {
                 taskRepository.filterTasksForUser(status, priority, userId, pageable);
 
         return PagedResponse.of(page.map(taskMapper::toResponse));
+    }
+
+    private UserEntity findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User", "email", email)
+                );
+    }
+
+    private String getCurrentUserEmail() {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            throw new IllegalStateException("No authenticated user");
+        }
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    private Long getCurrentUserId() {
+        return findUserByEmail(getCurrentUserEmail()).getId();
     }
 }

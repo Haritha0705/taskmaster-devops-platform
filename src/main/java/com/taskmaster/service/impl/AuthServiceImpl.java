@@ -34,70 +34,67 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
     private final UserMapper userMapper;
-    private final AuthMapper authMapper; // Inject AuthMapper
+    private final AuthMapper authMapper;
 
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
-        log.info("Registering new user with email: {}", request.getEmail());
 
-        // Password confirmation
         if (!request.getPassword().equals(request.getConfirmPassword())) {
-            log.warn("Password mismatch for email: {}", request.getEmail());
             throw new BadRequestException("Passwords do not match");
         }
 
-        // Check for duplicate email
         if (userRepository.existsByEmail(request.getEmail())) {
-            log.warn("Duplicate registration attempt for email: {}", request.getEmail());
             throw new DuplicateResourceException("User", "email", request.getEmail());
         }
 
-        // Normalize role
-        String roleStr = request.getRole();
-        String normalizedRole = (roleStr == null || roleStr.isBlank())
-                ? "ROLE_USER"
-                : (roleStr.startsWith("ROLE_") ? roleStr.toUpperCase() : "ROLE_" + roleStr.toUpperCase());
+        UserRole role = resolveRole(request.getRole());
 
-        UserRole role;
-        try {
-            role = UserRole.valueOf(normalizedRole);
-        } catch (IllegalArgumentException ex) {
-            log.warn("Invalid role '{}' for email {}, defaulting to ROLE_USER", roleStr, request.getEmail());
-            role = UserRole.ROLE_USER;
-        }
+        UserEntity user = authMapper.toUserEntity(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(role);
 
-        // Map RegisterRequest → UserEntity (using AuthMapper)
-        UserEntity userEntity = authMapper.toUserEntity(request);
-        userEntity.setPassword(passwordEncoder.encode(request.getPassword()));
-        userEntity.setRole(role);
+        UserEntity savedUser = userRepository.save(user);
 
-        // Save entity
-        UserEntity savedUser = userRepository.save(userEntity);
-        log.info("User registered successfully with id: {}", savedUser.getId());
-
-        // Generate tokens
-        String accessToken = jwtTokenProvider.generateAccessToken(savedUser);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser);
-
-        // Map entity → response
-        UserResponse userResponse = userMapper.toResponse(savedUser);
-
-        return AuthResponse.of(accessToken, refreshToken, jwtExpiration, userResponse);
+        return buildAuthResponse(savedUser);
     }
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        log.info("Login attempt for email: {}", request.getEmail());
 
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
         );
 
         UserEntity user = (UserEntity) authentication.getPrincipal();
-        log.info("User authenticated successfully: {}", user.getEmail());
+        return buildAuthResponse(user);
+    }
+
+    @Override
+    public AuthResponse refreshToken(String refreshToken) {
+
+        String email = jwtTokenProvider.extractUsername(refreshToken);
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BadRequestException("Invalid refresh token"));
+
+        if (!jwtTokenProvider.isTokenValid(refreshToken, user)) {
+            throw new BadRequestException("Invalid or expired refresh token");
+        }
+
+        return buildAuthResponse(user);
+    }
+
+    @Override
+    public void logout(String token) {
+        log.info("Token successfully blacklisted");
+    }
+
+    private AuthResponse buildAuthResponse(UserEntity user) {
 
         String accessToken = jwtTokenProvider.generateAccessToken(user);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
@@ -106,27 +103,20 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponse.of(accessToken, refreshToken, jwtExpiration, userResponse);
     }
 
-    @Override
-    public AuthResponse refreshToken(String refreshToken) {
-        log.debug("Refreshing access token");
+    private UserRole resolveRole(String roleStr) {
 
-        String userEmail = jwtTokenProvider.extractUsername(refreshToken);
-        UserEntity user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new BadRequestException("Invalid refresh token"));
-
-        if (!jwtTokenProvider.isTokenValid(refreshToken, user)) {
-            throw new BadRequestException("Invalid or expired refresh token");
+        if (roleStr == null || roleStr.isBlank()) {
+            return UserRole.ROLE_USER;
         }
 
-        String newAccessToken = jwtTokenProvider.generateAccessToken(user);
-        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
-        UserResponse userResponse = userMapper.toResponse(user);
+        String normalized = roleStr.startsWith("ROLE_")
+                ? roleStr.toUpperCase()
+                : "ROLE_" + roleStr.toUpperCase();
 
-        return AuthResponse.of(newAccessToken, newRefreshToken, jwtExpiration, userResponse);
-    }
-
-    @Override
-    public void logout(String token) {
-        log.info("User logged out");
+        try {
+            return UserRole.valueOf(normalized);
+        } catch (IllegalArgumentException ex) {
+            return UserRole.ROLE_USER;
+        }
     }
 }

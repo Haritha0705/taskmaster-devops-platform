@@ -20,8 +20,10 @@ public class ApiPaths {
     // User endpoints
     public static final String USERS = API_V1 + "/users";
     public static final String USER_ME = "/me";
+    public static final String USER_ACTIVE = "/active";
     public static final String USER_BY_ID = "/{id}";
     public static final String USER_SEARCH = "/search";
+    public static final String USER_RESTORE = USER_BY_ID + "/restore";
 
     // Task endpoints
     public static final String TASKS = API_V1 + "/tasks";

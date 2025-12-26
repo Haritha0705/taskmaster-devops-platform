@@ -11,22 +11,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class SecurityService {
 
-    /**
-     * Get the currently logged-in user's ID
-     */
     public Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("Unauthenticated user");
         }
 
-        // Assuming principal is a custom UserDetails with getId()
         Object principal = authentication.getPrincipal();
-
-        if (principal instanceof UserEntity userDetails) {
-            return userDetails.getId();
-        } else {
-            throw new RuntimeException("Principal is not an instance of CustomUserDetails");
-        }
+        if (principal instanceof UserEntity user) return user.getId();
+        throw new RuntimeException("Principal is not UserEntity");
     }
 }
+

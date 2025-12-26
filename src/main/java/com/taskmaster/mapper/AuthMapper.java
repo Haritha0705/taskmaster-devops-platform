@@ -5,12 +5,11 @@ import com.taskmaster.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(
+        componentModel = "spring",
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface AuthMapper {
 
-    /**
-     * Map RegisterRequest -> UserEntity (used during registration)
-     */
     UserEntity toUserEntity(RegisterRequest request);
-
 }

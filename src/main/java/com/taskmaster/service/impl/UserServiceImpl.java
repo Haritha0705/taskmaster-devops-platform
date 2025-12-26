@@ -1,6 +1,7 @@
 package com.taskmaster.service.impl;
 
 import com.taskmaster.common.dto.PagedResponse;
+import com.taskmaster.common.enums.UserRole;
 import com.taskmaster.common.exception.custom.DuplicateResourceException;
 import com.taskmaster.common.exception.custom.ResourceNotFoundException;
 import com.taskmaster.dto.request.UserCreateRequest;
@@ -12,7 +13,6 @@ import com.taskmaster.repository.UserRepository;
 import com.taskmaster.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,19 +35,18 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public UserResponse getUserById(Long id) {
-        log.debug("Fetching user by id: {}", id);
-        UserEntity user = findUserById(id);
-        return userMapper.toResponse(user);
+        return userMapper.toResponse(findUserById(id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserResponse getUserByEmail(String email) {
-        log.debug("Fetching user by email: {}", email);
-        UserEntity user = findUserByEmail(email);
-        return userMapper.toResponse(user);
+        return userMapper.toResponse(findUserByEmail(email));
     }
 
+    /**
+     * REQUIRED by UserService interface
+     */
     @Override
     @Transactional(readOnly = true)
     public UserEntity getUserEntityByEmail(String email) {
@@ -56,80 +55,75 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse createUser(UserCreateRequest request) {
-        log.info("Creating new user with email: {}", request.getEmail());
 
-        // Check for duplicate email
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateResourceException("User", "email", request.getEmail());
         }
 
         UserEntity user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(
+                request.getRole() != null ? request.getRole() : UserRole.ROLE_USER
+        );
 
-        UserEntity savedUser = userRepository.save(user);
-        log.info("User created successfully with id: {}", savedUser.getId());
-
-        return userMapper.toResponse(savedUser);
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     @Override
     public UserResponse updateUser(Long id, UserUpdateRequest request) {
-        log.info("Updating user with id: {}", id);
-
-        UserEntity existingUser = findUserById(id);
-
-        // Update fields
-        userMapper.updateEntityFromRequest(request, existingUser);
-
-        UserEntity updatedUser = userRepository.save(existingUser);
-        log.info("User updated successfully: {}", id);
-
-        return userMapper.toResponse(updatedUser);
+        UserEntity user = findUserById(id);
+        userMapper.updateEntityFromRequest(request, user);
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     @Override
     public void deleteUser(Long id) {
-        log.info("Deleting user with id: {}", id);
-
         UserEntity user = findUserById(id);
-
-        Long currentUserId = getCurrentUserId();
-        user.softDelete(currentUserId);
-
+        user.softDelete(getCurrentUserId());
+        user.setIsActive(false);
+        user.setIsDeleted(true);
         userRepository.save(user);
-        log.info("User soft-deleted successfully: {}", id);
     }
 
     @Override
     public void restoreUser(Long id) {
         UserEntity user = findUserById(id);
         user.restore();
+        user.setIsActive(true);
+        user.setIsDeleted(false);
         userRepository.save(user);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public PagedResponse<UserResponse> getAllActiveUsers(Pageable pageable) {
+        return PagedResponse.of(
+                userRepository.findAllActiveUsers(pageable)
+                        .map(userMapper::toResponse)
+        );
+    }
 
     @Override
     @Transactional(readOnly = true)
     public PagedResponse<UserResponse> getAllUsers(Pageable pageable) {
-        log.debug("Fetching all users with pagination");
-
-        Page<UserEntity> userPage = userRepository.findAll(pageable);
-        Page<UserResponse> responsePage = userPage.map(userMapper::toResponse);
-
-        return PagedResponse.of(responsePage);
+        return PagedResponse.of(
+                userRepository.findAllUsers(pageable)
+                        .map(userMapper::toResponse)
+        );
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PagedResponse<UserResponse> searchUsers(String searchTerm, Pageable pageable) {
-        log.debug("Searching users with term: {}", searchTerm);
-
-        Page<UserEntity> userPage = userRepository.searchUsers(searchTerm, pageable);
-        Page<UserResponse> responsePage = userPage.map(userMapper::toResponse);
-
-        return PagedResponse.of(responsePage);
+    public PagedResponse<UserResponse> searchUsers(String term, Pageable pageable) {
+        return PagedResponse.of(
+                userRepository.searchActiveUsers(term, pageable)
+                        .map(userMapper::toResponse)
+        );
     }
 
+    /**
+     * REQUIRED by UserService interface
+     */
     @Override
     @Transactional(readOnly = true)
     public boolean emailExists(String email) {
@@ -139,25 +133,33 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return getUserByEmail(email);
+        return getUserByEmail(getCurrentUserEmail());
     }
 
-    // ================ Helper Methods ================
+    // ================= Helpers =================
 
     private UserEntity findUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User", "id", id)
+                );
     }
 
     private UserEntity findUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User", "email", email)
+                );
+    }
+
+    private String getCurrentUserEmail() {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            throw new IllegalStateException("No authenticated user");
+        }
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
     private Long getCurrentUserId() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return findUserByEmail(email).getId();
+        return findUserByEmail(getCurrentUserEmail()).getId();
     }
-
 }

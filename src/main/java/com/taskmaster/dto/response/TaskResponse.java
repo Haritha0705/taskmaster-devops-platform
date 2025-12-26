@@ -2,6 +2,7 @@ package com.taskmaster.dto.response;
 
 import com.taskmaster.common.enums.TaskPriority;
 import com.taskmaster.common.enums.TaskStatus;
+import com.taskmaster.entity.UserEntity;
 import lombok.*;
 
 import java.time.LocalDateTime;

@@ -39,7 +39,7 @@ public class TaskController {
        Create Task (User)
        ======================== */
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_USER')")
     @Operation(summary = "Create task", description = "Create a new task")
     public ResponseEntity<ApiResponse<TaskResponse>> createTask(
             @Valid @RequestBody TaskCreateRequest request) {
@@ -51,7 +51,7 @@ public class TaskController {
        Get Task by ID
        ======================== */
     @GetMapping(ApiPaths.TASK_BY_ID)
-    @PreAuthorize("hasRole('ADMIN') or @taskSecurity.isOwner(#id)")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @taskSecurity.isOwner(#id)")
     @Operation(summary = "Get task by ID", description = "Get task details by task ID")
     public ResponseEntity<ApiResponse<TaskResponse>> getTaskById(@PathVariable Long id) {
         TaskResponse task = taskService.getTaskById(id);
@@ -62,7 +62,7 @@ public class TaskController {
        Update Task
        ======================== */
     @PutMapping(ApiPaths.TASK_BY_ID)
-    @PreAuthorize("hasRole('ADMIN') or @taskSecurity.isOwner(#id)")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @taskSecurity.isOwner(#id)")
     @Operation(summary = "Update task", description = "Update task details")
     public ResponseEntity<ApiResponse<TaskResponse>> updateTask(
             @PathVariable Long id,
@@ -75,7 +75,7 @@ public class TaskController {
        Delete Task (Soft Delete)
        ======================== */
     @DeleteMapping(ApiPaths.TASK_BY_ID)
-    @PreAuthorize("hasRole('ADMIN') or @taskSecurity.isOwner(#id)")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @taskSecurity.isOwner(#id)")
     @Operation(summary = "Delete task", description = "Soft delete a task")
     public ResponseEntity<ApiResponse<Void>> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
@@ -86,7 +86,7 @@ public class TaskController {
        Get All Tasks (Admin)
        ======================== */
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @Operation(summary = "Get all tasks", description = "Get all tasks with pagination")
     public ResponseEntity<ApiResponse<PagedResponse<TaskResponse>>> getAllTasks(
             @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
@@ -105,7 +105,7 @@ public class TaskController {
        Search Tasks (Admin)
        ======================== */
     @GetMapping(ApiPaths.TASK_SEARCH)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @Operation(summary = "Search tasks", description = "Search tasks by title or description")
     public ResponseEntity<ApiResponse<PagedResponse<TaskResponse>>> searchTasks(
             @RequestParam String query,
@@ -127,7 +127,7 @@ public class TaskController {
        Filter Tasks (Admin)
        ======================== */
     @GetMapping(ApiPaths.TASK_FILTER)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @Operation(summary = "Filter tasks", description = "Filter tasks by status or priority")
     public ResponseEntity<ApiResponse<PagedResponse<TaskResponse>>> filterTasks(
             @RequestParam(required = false) TaskStatus status,
@@ -150,7 +150,7 @@ public class TaskController {
        Current User: Get My Tasks
        ======================== */
     @GetMapping("/me")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @Operation(summary = "Get current user's tasks", description = "Get all tasks assigned to the current user")
     public ResponseEntity<ApiResponse<PagedResponse<TaskResponse>>> getMyTasks(
             @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
@@ -171,7 +171,7 @@ public class TaskController {
        Current User: Search My Tasks
        ======================== */
     @GetMapping("/me/search")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @Operation(summary = "Search my tasks", description = "Search tasks assigned to current user")
     public ResponseEntity<ApiResponse<PagedResponse<TaskResponse>>> searchMyTasks(
             @RequestParam String query,
@@ -194,7 +194,7 @@ public class TaskController {
        Current User: Filter My Tasks
        ======================== */
     @GetMapping("/me/filter")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @Operation(summary = "Filter my tasks", description = "Filter tasks assigned to current user")
     public ResponseEntity<ApiResponse<PagedResponse<TaskResponse>>> filterMyTasks(
             @RequestParam(required = false) TaskStatus status,
@@ -217,11 +217,10 @@ public class TaskController {
 
     // ======================== Restore Task ========================
     @PutMapping(ApiPaths.TASK_BY_ID + "/restore")
-    @PreAuthorize("hasRole('ADMIN') or @taskSecurity.isOwner(#id)")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @taskSecurity.isOwner(#id)")
     @Operation(summary = "Restore task", description = "Restore a previously deleted task")
     public ResponseEntity<ApiResponse<TaskResponse>> restoreTask(@PathVariable Long id) {
         taskService.restoreTask(id);
-        TaskResponse task = taskService.getTaskById(id);
-        return ResponseEntity.ok(ApiResponse.success("Task restored successfully", task));
+        return ResponseEntity.ok(ApiResponse.success("Task restored successfully"));
     }
 }

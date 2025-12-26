@@ -14,25 +14,19 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(ApiPaths.AUTH)
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "Authentication", description = "Authentication APIs")
 public class AuthController {
 
     private final AuthService authService;
-    private final JwtBlacklistService jwtBlacklistService; // ✅ FIX
+    private final JwtBlacklistService jwtBlacklistService;
 
-    @GetMapping("/rate-limit-test")
-    public String testRateLimit() {
-        return "Rate limit test successful";
-    }
-
-    /**
-     * Register a new user
-     */
     @PostMapping("/register")
     @Operation(summary = "Register", description = "Register a new user account")
     public ResponseEntity<ApiResponse<AuthResponse>> register(
@@ -43,9 +37,6 @@ public class AuthController {
                 .body(ApiResponse.success("Registration successful", response));
     }
 
-    /**
-     * Login with email and password
-     */
     @PostMapping("/login")
     @Operation(summary = "Login", description = "Authenticate with email and password")
     public ResponseEntity<ApiResponse<AuthResponse>> login(
@@ -55,9 +46,6 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
 
-    /**
-     * Refresh access token
-     */
     @PostMapping("/refresh-token")
     @Operation(summary = "Refresh Token", description = "Get new access token using refresh token")
     public ResponseEntity<ApiResponse<AuthResponse>> refreshToken(
@@ -67,25 +55,20 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Token refreshed", response));
     }
 
-    /**
-     * Logout user (JWT Blacklist)
-     */
     @PostMapping("/logout")
     @Operation(summary = "Logout", description = "Logout user and blacklist JWT token")
     public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
 
         String authHeader = request.getHeader("Authorization");
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Invalid token"));
+                    .body(ApiResponse.error("Invalid Authorization header"));
         }
 
         String token = authHeader.substring(7);
         jwtBlacklistService.blacklistToken(token);
+        authService.logout(token);
 
-        return ResponseEntity.ok(
-                ApiResponse.success("Logged out successfully", null)
-        );
+        return ResponseEntity.ok(ApiResponse.success("Logged out successfully", null));
     }
 }

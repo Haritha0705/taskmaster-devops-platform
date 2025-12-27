@@ -42,6 +42,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse register(RegisterRequest request) {
 
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            throw new BadRequestException("Email must not be empty");
+        }
+
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new BadRequestException("Passwords do not match");
         }

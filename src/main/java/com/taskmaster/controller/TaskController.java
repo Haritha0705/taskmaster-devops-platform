@@ -218,16 +218,6 @@ public class TaskController {
     }
 
     // ======================== Restore Task ========================
-//    @PutMapping(ApiPaths.TASK_RESTORE)
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @taskSecurity.isOwner(#id)")
-//    @Operation(summary = "Restore task", description = "Restore a previously deleted task")
-//    public ResponseEntity<ApiResponse<TaskResponse>> restoreTask(@PathVariable Long id) {
-//        taskService.restoreTask(id);
-//        return ResponseEntity.ok(
-//                ApiResponse.success("Task restored successfully")
-//        );
-//    }
-
     @PutMapping(ApiPaths.TASK_RESTORE)
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or @taskSecurity.isOwner(#id)")
     public ResponseEntity<ApiResponse<TaskResponse>> restoreTask(@PathVariable Long id) {

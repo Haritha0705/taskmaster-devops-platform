@@ -2,18 +2,6 @@ package com.taskmaster.common.constants;
 
 /**
  * Centralized API path constants used across controllers and tests.
- *
- * <p>Keeping all route paths in a single place helps avoid typos and
- * makes it easier to change base versions or prefixes. These constants
- * are intended to be used by @RequestMapping and related annotations
- * as well as in tests and documentation.</p>
- *
- * <p>Usage examples:
- * <pre>
- * @RequestMapping(ApiPaths.AUTH)
- * @GetMapping(ApiPaths.USER_ME)
- * </pre>
- * </p>
  */
 public final class ApiPaths {
     private ApiPaths() {

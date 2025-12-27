@@ -70,20 +70,6 @@ public abstract class BaseEntity {
         this.deletedAt = LocalDateTime.now();
     }
 
-//    /**
-//     * Restore soft deleted entity
-//     */
-//    public void restore() {;
-//        this.deletedBy = null;
-//        this.deletedAt = null;
-//    }
-//
-//    public void softDelete() {
-//        this.isDeleted = true;
-//        this.isActive = false;
-//        this.deletedAt = LocalDateTime.now();
-//    }
-
     public void softDelete() {
         this.isDeleted = true;
         this.isActive = false;

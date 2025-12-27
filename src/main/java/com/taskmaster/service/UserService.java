@@ -1,10 +1,8 @@
 package com.taskmaster.service;
 
 import com.taskmaster.common.dto.PagedResponse;
-import com.taskmaster.dto.request.UserCreateRequest;
 import com.taskmaster.dto.request.UserUpdateRequest;
 import com.taskmaster.dto.response.UserResponse;
-import com.taskmaster.entity.UserEntity;
 import org.springframework.data.domain.Pageable;
 
 /**
@@ -21,16 +19,6 @@ public interface UserService {
      * Get user by email
      */
     UserResponse getUserByEmail(String email);
-
-    /**
-     * Get user entity by email (internal use)
-     */
-    UserEntity getUserEntityByEmail(String email);
-
-    /**
-     * Create new user
-     */
-    UserResponse createUser(UserCreateRequest request);
 
     /**
      * Update existing user
@@ -55,11 +43,6 @@ public interface UserService {
      * Search users
      */
     PagedResponse<UserResponse> searchUsers(String searchTerm, Pageable pageable);
-
-    /**
-     * Check if email exists
-     */
-    boolean emailExists(String email);
 
     /**
      * Get current logged-in user

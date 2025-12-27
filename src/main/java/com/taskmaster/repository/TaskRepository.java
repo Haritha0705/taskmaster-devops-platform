@@ -17,9 +17,6 @@ import java.util.Optional;
 public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
     Page<TaskEntity> findByCreatedBy(UserEntity user, Pageable pageable);
-//
-//    @Query("SELECT t FROM TaskEntity t WHERE t.id = :id")
-//    Optional<TaskEntity> findByIdIncludingDeleted(@Param("id") Long id);
 
     @Query("SELECT t FROM TaskEntity t WHERE t.id = :id")
     Optional<TaskEntity> findByIdIncludingDeleted(@Param("id") Long id);
@@ -62,9 +59,4 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
     Page<TaskEntity> searchTasksForUser(@Param("term") String term,
                                         @Param("userId") Long userId,
                                         Pageable pageable);
-
-
-    @Query("SELECT t FROM TaskEntity t WHERE t.isDeleted = false")
-    Page<TaskEntity> findAllActive(Pageable pageable);
-
 }

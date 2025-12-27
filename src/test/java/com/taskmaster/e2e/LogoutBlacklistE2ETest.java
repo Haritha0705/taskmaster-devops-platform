@@ -3,8 +3,6 @@ package com.taskmaster.e2e;
 import com.taskmaster.common.constants.ApiPaths;
 import com.taskmaster.dto.request.LoginRequest;
 import com.taskmaster.dto.request.RegisterRequest;
-import com.taskmaster.dto.response.AuthResponse;
-import com.taskmaster.dto.response.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

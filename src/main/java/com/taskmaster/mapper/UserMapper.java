@@ -4,7 +4,6 @@ import com.taskmaster.dto.request.UserCreateRequest;
 import com.taskmaster.dto.request.UserUpdateRequest;
 import com.taskmaster.dto.response.UserResponse;
 import com.taskmaster.entity.UserEntity;
-import com.taskmaster.common.enums.UserRole;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

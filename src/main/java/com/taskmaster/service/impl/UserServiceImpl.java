@@ -1,10 +1,7 @@
 package com.taskmaster.service.impl;
 
 import com.taskmaster.common.dto.PagedResponse;
-import com.taskmaster.common.enums.UserRole;
-import com.taskmaster.common.exception.custom.DuplicateResourceException;
 import com.taskmaster.common.exception.custom.ResourceNotFoundException;
-import com.taskmaster.dto.request.UserCreateRequest;
 import com.taskmaster.dto.request.UserUpdateRequest;
 import com.taskmaster.dto.response.UserResponse;
 import com.taskmaster.entity.UserEntity;
@@ -15,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +26,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(readOnly = true)
@@ -47,27 +42,6 @@ public class UserServiceImpl implements UserService {
     /**
      * REQUIRED by UserService interface
      */
-    @Override
-    @Transactional(readOnly = true)
-    public UserEntity getUserEntityByEmail(String email) {
-        return findUserByEmail(email);
-    }
-
-    @Override
-    public UserResponse createUser(UserCreateRequest request) {
-
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateResourceException("User", "email", request.getEmail());
-        }
-
-        UserEntity user = userMapper.toEntity(request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(
-                request.getRole() != null ? request.getRole() : UserRole.ROLE_USER
-        );
-
-        return userMapper.toResponse(userRepository.save(user));
-    }
 
     @Override
     public UserResponse updateUser(Long id, UserUpdateRequest request) {
@@ -128,11 +102,6 @@ public class UserServiceImpl implements UserService {
     /**
      * REQUIRED by UserService interface
      */
-    @Override
-    @Transactional(readOnly = true)
-    public boolean emailExists(String email) {
-        return userRepository.existsByEmail(email);
-    }
 
     @Override
     @Transactional(readOnly = true)

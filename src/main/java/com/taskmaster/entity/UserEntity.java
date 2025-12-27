@@ -58,11 +58,10 @@ public class UserEntity extends BaseEntity implements UserDetails {
     @Column(name = "is_account_locked", nullable = false)
     private Boolean isAccountLocked = false;
 
-    // Inside BaseEntity
-    @Builder.Default
+    @Column(nullable = false)
     private Boolean isActive = true;
 
-    @Builder.Default
+    @Column(nullable = false)
     private Boolean isDeleted = false;
 
     /* ================= Spring Security ================= */
@@ -102,7 +101,7 @@ public class UserEntity extends BaseEntity implements UserDetails {
         return firstName + " " + lastName;
     }
 
-    @OneToMany(mappedBy = "assignee", fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
     private List<TaskEntity> tasks;
-
 }

@@ -26,8 +26,6 @@ public class TaskUpdateRequest {
     @FutureOrPresent
     private LocalDateTime dueDate;
 
-    private Long assigneeId;
-
     private String location;
     private String remarks;
 }

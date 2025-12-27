@@ -3,6 +3,7 @@ package com.taskmaster.repository;
 import com.taskmaster.common.enums.TaskPriority;
 import com.taskmaster.common.enums.TaskStatus;
 import com.taskmaster.entity.TaskEntity;
+import com.taskmaster.entity.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
-    Page<TaskEntity> findByAssigneeId(Long userId, Pageable pageable);
+    Page<TaskEntity> findByCreatedBy(UserEntity user, Pageable pageable);
 
     @Query("""
         SELECT t FROM TaskEntity t
@@ -34,7 +35,7 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
     // For current user
     @Query("""
         SELECT t FROM TaskEntity t
-        WHERE t.assignee.id = :userId
+        WHERE t.createdBy.id = :userId
           AND (:status IS NULL OR t.status = :status)
           AND (:priority IS NULL OR t.priority = :priority)
     """)
@@ -45,7 +46,7 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
     @Query("""
         SELECT t FROM TaskEntity t
-        WHERE t.assignee.id = :userId
+        WHERE t.createdBy.id = :userId
           AND (LOWER(t.title) LIKE LOWER(CONCAT('%', :term, '%'))
                OR LOWER(t.description) LIKE LOWER(CONCAT('%', :term, '%')))
     """)

@@ -34,3 +34,5 @@ build/
 .idea/
 
 .mvn/
+
+.gitmessage

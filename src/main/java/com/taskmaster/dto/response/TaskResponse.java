@@ -2,7 +2,6 @@ package com.taskmaster.dto.response;
 
 import com.taskmaster.common.enums.TaskPriority;
 import com.taskmaster.common.enums.TaskStatus;
-import com.taskmaster.entity.UserEntity;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -19,9 +18,6 @@ public class TaskResponse {
     private TaskPriority priority;
     private TaskStatus status;
     private LocalDateTime dueDate;
-
-    private Long assigneeId;
-    private String assigneeName;
 
     private String location;
     private String remarks;

@@ -18,7 +18,6 @@ public class TaskSecurity {
         Long currentUserId = securityService.getCurrentUserId();
         return taskRepository.findById(taskId)
                 .map(task ->
-                        (task.getAssignee() != null && task.getAssignee().getId().equals(currentUserId)) ||
                                 (task.getCreatedBy() != null && task.getCreatedBy().getId().equals(currentUserId))
                 )
                 .orElse(false);

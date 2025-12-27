@@ -33,19 +33,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskMapper taskMapper;
     private final SecurityService securityService;
 
-    /* =======================
-       Helpers
-       ======================= */
 
-    private TaskEntity findTaskById(Long id) {
-        return taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
-    }
-
-    private UserEntity getCurrentUser() {
-        Long userId = securityService.getCurrentUserId();
-        return userRepository.getReferenceById(userId);
-    }
 
     /* =======================
        Read
@@ -73,9 +61,7 @@ public class TaskServiceImpl implements TaskService {
         TaskEntity task = taskMapper.toEntity(request);
 
         UserEntity currentUser = getCurrentUser();
-        UserEntity assignee = userRepository.getReferenceById(request.getAssigneeId());
 
-        task.setAssignee(assignee);
         task.setCreatedBy(currentUser);
         task.setUpdatedBy(currentUser);
 
@@ -157,8 +143,10 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(readOnly = true)
     public PagedResponse<TaskResponse> getTasksByCurrentUser(Pageable pageable) {
-        Long userId = securityService.getCurrentUserId();
-        Page<TaskEntity> page = taskRepository.findByAssigneeId(userId, pageable);
+        UserEntity owner = getCurrentUser();
+        Page<TaskEntity> page =
+                taskRepository.findByCreatedBy(owner, pageable);
+
         return PagedResponse.of(page.map(taskMapper::toResponse));
     }
 
@@ -200,5 +188,19 @@ public class TaskServiceImpl implements TaskService {
 
     private Long getCurrentUserId() {
         return findUserByEmail(getCurrentUserEmail()).getId();
+    }
+
+    /* =======================
+       Helpers
+       ======================= */
+
+    private TaskEntity findTaskById(Long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
+    }
+
+    private UserEntity getCurrentUser() {
+        Long userId = securityService.getCurrentUserId();
+        return userRepository.getReferenceById(userId);
     }
 }

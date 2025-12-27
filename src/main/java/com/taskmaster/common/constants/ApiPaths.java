@@ -1,6 +1,21 @@
 package com.taskmaster.common.constants;
 
-public class ApiPaths {
+/**
+ * Centralized API path constants used across controllers and tests.
+ *
+ * <p>Keeping all route paths in a single place helps avoid typos and
+ * makes it easier to change base versions or prefixes. These constants
+ * are intended to be used by @RequestMapping and related annotations
+ * as well as in tests and documentation.</p>
+ *
+ * <p>Usage examples:
+ * <pre>
+ * @RequestMapping(ApiPaths.AUTH)
+ * @GetMapping(ApiPaths.USER_ME)
+ * </pre>
+ * </p>
+ */
+public final class ApiPaths {
     private ApiPaths() {
         throw new IllegalStateException("Constants class - cannot be instantiated");
     }
@@ -33,5 +48,7 @@ public class ApiPaths {
     public static final String TASK_SEARCH = "/search";
     public static final String TASK_FILTER = "/filter";
     public static final String TASK_ME_FILTER = TASK_ME + TASK_FILTER;
-    public static final String TASK_RESTORE = USER_BY_ID + "/restore";
+    public static final String TASK_RESTORE = TASK_BY_ID + "/restore";
+
+
 }

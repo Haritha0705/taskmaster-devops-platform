@@ -1,7 +1,5 @@
 package com.taskmaster.common.constants;
 
-import java.time.Duration;
-
 public class AppConstants {
     private AppConstants() {
         throw new IllegalStateException("Constants class - cannot be instantiated");

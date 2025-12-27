@@ -15,7 +15,7 @@ public class RateLimiterService {
     private static final Logger log = LoggerFactory.getLogger(RateLimiterService.class);
 
     private final RedisTemplate<String, String> redisTemplate;
-    private static final int MAX_REQUESTS = 3;
+    private static final int MAX_REQUESTS = 100;
     private static final Duration WINDOW = Duration.ofMinutes(1);
 
 

@@ -34,9 +34,6 @@ public class TaskCreateRequest {
     @FutureOrPresent
     private LocalDateTime dueDate;
 
-    @NotNull
-    private Long assigneeId;
-
     private String location;
     private String remarks;
 }

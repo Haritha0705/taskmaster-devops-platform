@@ -11,10 +11,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
     Page<TaskEntity> findByCreatedBy(UserEntity user, Pageable pageable);
+//
+//    @Query("SELECT t FROM TaskEntity t WHERE t.id = :id")
+//    Optional<TaskEntity> findByIdIncludingDeleted(@Param("id") Long id);
+
+    @Query("SELECT t FROM TaskEntity t WHERE t.id = :id")
+    Optional<TaskEntity> findByIdIncludingDeleted(@Param("id") Long id);
+
 
     @Query("""
         SELECT t FROM TaskEntity t

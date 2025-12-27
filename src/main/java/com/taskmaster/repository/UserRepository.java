@@ -37,7 +37,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpec
     @Query("SELECT u FROM UserEntity u WHERE u.isDeleted = false ")
     Page<UserEntity> findAllActiveUsers(Pageable pageable);
 
-    @Query("SELECT u FROM UserEntity u WHERE u.isActive = true AND u.isDeleted = false")
+    @Query("SELECT u FROM UserEntity u")
     Page<UserEntity> findAllUsers(Pageable pageable);
 
     @Query("""

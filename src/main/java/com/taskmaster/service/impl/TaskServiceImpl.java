@@ -97,20 +97,24 @@ public class TaskServiceImpl implements TaskService {
        ======================= */
 
     @Override
-    public void deleteTask(Long id) {
-        TaskEntity task = findTaskById(id);
-        task.softDelete(getCurrentUserId());
-        task.setIsActive(false);
-        task.setIsDeleted(true);
+    public void deleteTask(Long taskId) {
+        TaskEntity task = findTaskByIdIncludingDeleted(taskId);
+
+        task.softDelete();
+        task.setDeletedBy(getCurrentUserId());
+        task.setUpdatedBy(getCurrentUser());
+
         taskRepository.save(task);
     }
 
     @Override
-    public void restoreTask(Long id) {
-        TaskEntity task = findTaskById(id);
+    public void restoreTask(Long taskId) {
+        TaskEntity task = findTaskByIdIncludingDeleted(taskId);
+
         task.restore();
-        task.setIsActive(true);
-        task.setIsDeleted(false);
+        task.setDeletedBy(null);
+        task.setUpdatedBy(getCurrentUser());
+
         taskRepository.save(task);
     }
 
@@ -196,6 +200,11 @@ public class TaskServiceImpl implements TaskService {
 
     private TaskEntity findTaskById(Long id) {
         return taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
+    }
+
+    private TaskEntity findTaskByIdIncludingDeleted(Long id) {
+        return taskRepository.findByIdIncludingDeleted(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task", "id", id));
     }
 

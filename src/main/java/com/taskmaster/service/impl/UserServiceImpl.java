@@ -79,18 +79,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         UserEntity user = findUserById(id);
-        user.softDelete(getCurrentUserId());
+
         user.setIsActive(false);
         user.setIsDeleted(true);
+        user.softDelete(getCurrentUserId());
+
         userRepository.save(user);
     }
 
     @Override
     public void restoreUser(Long id) {
         UserEntity user = findUserById(id);
+
         user.restore();
         user.setIsActive(true);
         user.setIsDeleted(false);
+
         userRepository.save(user);
     }
 

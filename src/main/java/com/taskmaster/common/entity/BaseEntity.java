@@ -66,19 +66,36 @@ public abstract class BaseEntity {
      * Soft delete helper method
      */
     public void softDelete(Long deletedById) {
-        this.isDeleted = true;
         this.deletedBy = deletedById;
         this.deletedAt = LocalDateTime.now();
-        this.isActive = false;
     }
 
-    /**
-     * Restore soft deleted entity
-     */
+//    /**
+//     * Restore soft deleted entity
+//     */
+//    public void restore() {;
+//        this.deletedBy = null;
+//        this.deletedAt = null;
+//    }
+//
+//    public void softDelete() {
+//        this.isDeleted = true;
+//        this.isActive = false;
+//        this.deletedAt = LocalDateTime.now();
+//    }
+
+    public void softDelete() {
+        this.isDeleted = true;
+        this.isActive = false;
+        this.deletedAt = LocalDateTime.now();
+    }
+
     public void restore() {
         this.isDeleted = false;
-        this.deletedBy = null;
-        this.deletedAt = null;
         this.isActive = true;
+        this.deletedAt = null;
+        this.deletedBy = null;
     }
+
+
 }

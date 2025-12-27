@@ -16,13 +16,12 @@ public class TaskSecurity {
 
     public boolean isOwner(Long taskId) {
         Long currentUserId = securityService.getCurrentUserId();
-        return taskRepository.findById(taskId)
+
+        return taskRepository.findByIdIncludingDeleted(taskId)
                 .map(task ->
-                                (task.getCreatedBy() != null && task.getCreatedBy().getId().equals(currentUserId))
+                        task.getCreatedBy() != null &&
+                                task.getCreatedBy().getId().equals(currentUserId)
                 )
                 .orElse(false);
     }
 }
-
-
-

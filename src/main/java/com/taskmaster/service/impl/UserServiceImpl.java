@@ -3,7 +3,8 @@ package com.taskmaster.service.impl;
 import com.taskmaster.common.dto.PagedResponse;
 import com.taskmaster.common.exception.custom.ResourceNotFoundException;
 import com.taskmaster.dto.request.UserUpdateRequest;
-import com.taskmaster.dto.response.UserResponse;
+import com.taskmaster.dto.response.UserDetailResponse;
+import com.taskmaster.dto.response.UserSummaryResponse;
 import com.taskmaster.entity.UserEntity;
 import com.taskmaster.mapper.UserMapper;
 import com.taskmaster.repository.UserRepository;
@@ -29,25 +30,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponse getUserById(Long id) {
-        return userMapper.toResponse(findUserById(id));
+    public UserDetailResponse getUserById(Long id) {
+        return userMapper.toDetailResponse(findUserById(id));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponse getUserByEmail(String email) {
-        return userMapper.toResponse(findUserByEmail(email));
+    public UserDetailResponse getUserByEmail(String email) {
+        return userMapper.toDetailResponse(findUserByEmail(email));
     }
 
-    /**
-     * REQUIRED by UserService interface
-     */
-
     @Override
-    public UserResponse updateUser(Long id, UserUpdateRequest request) {
+    public UserDetailResponse updateUser(Long id, UserUpdateRequest request) {
         UserEntity user = findUserById(id);
         userMapper.updateEntityFromRequest(request, user);
-        return userMapper.toResponse(userRepository.save(user));
+        return userMapper.toDetailResponse(userRepository.save(user));
     }
 
     @Override
@@ -74,38 +71,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public PagedResponse<UserResponse> getAllActiveUsers(Pageable pageable) {
+    public PagedResponse<UserSummaryResponse> getAllActiveUsers(Pageable pageable) {
         return PagedResponse.of(
                 userRepository.findAllActiveUsers(pageable)
-                        .map(userMapper::toResponse)
+                        .map(userMapper::toSummaryResponse)
         );
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PagedResponse<UserResponse> getAllUsers(Pageable pageable) {
+    public PagedResponse<UserSummaryResponse> getAllUsers(Pageable pageable) {
         return PagedResponse.of(
                 userRepository.findAllUsers(pageable)
-                        .map(userMapper::toResponse)
+                        .map(userMapper::toSummaryResponse)
         );
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PagedResponse<UserResponse> searchUsers(String term, Pageable pageable) {
+    public PagedResponse<UserSummaryResponse> searchUsers(String term, Pageable pageable) {
         return PagedResponse.of(
                 userRepository.searchActiveUsers(term, pageable)
-                        .map(userMapper::toResponse)
+                        .map(userMapper::toSummaryResponse)
         );
     }
 
-    /**
-     * REQUIRED by UserService interface
-     */
-
     @Override
     @Transactional(readOnly = true)
-    public UserResponse getCurrentUser() {
+    public UserDetailResponse getCurrentUser() {
         return getUserByEmail(getCurrentUserEmail());
     }
 

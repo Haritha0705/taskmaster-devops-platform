@@ -11,7 +11,15 @@ import org.hibernate.annotations.Where;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tasks")
+@Table(
+        name = "tasks",
+        indexes = {
+                @Index(name = "idx_task_user_status_deleted", columnList = "created_by, status, is_deleted"),
+                @Index(name = "idx_task_user_priority", columnList = "created_by, priority"),
+                @Index(name = "idx_task_due_date", columnList = "due_date"),
+                @Index(name = "idx_task_active_deleted", columnList = "is_active, is_deleted")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor

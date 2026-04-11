@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class PagedResponse<T> {
 
     // Create from Spring Page object
 
-    public static <T> PagedResponse<T> of(org.springframework.data.domain.Page<T> page) {
+    public static <T> PagedResponse<T> of(Page<T> page) {
         return PagedResponse.<T>builder()
                 .content(page.getContent())
                 .pageNumber(page.getNumber())

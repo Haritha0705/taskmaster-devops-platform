@@ -15,7 +15,9 @@ import java.util.List;
 @Table(
         name = "users",
         indexes = {
-                @Index(name = "idx_user_email", columnList = "email", unique = true)
+                @Index(name = "idx_user_email_status", columnList = "email, is_active, is_deleted"),
+                @Index(name = "idx_user_role", columnList = "role"),
+                @Index(name = "idx_user_active_deleted", columnList = "is_active, is_deleted")
         }
 )
 @Getter

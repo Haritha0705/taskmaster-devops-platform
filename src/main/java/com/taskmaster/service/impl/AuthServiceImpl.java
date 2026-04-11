@@ -7,7 +7,7 @@ import com.taskmaster.config.security.JwtTokenProvider;
 import com.taskmaster.dto.request.LoginRequest;
 import com.taskmaster.dto.request.RegisterRequest;
 import com.taskmaster.dto.response.AuthResponse;
-import com.taskmaster.dto.response.UserResponse;
+import com.taskmaster.dto.response.UserSummaryResponse;
 import com.taskmaster.entity.UserEntity;
 import com.taskmaster.mapper.AuthMapper;
 import com.taskmaster.mapper.UserMapper;
@@ -86,7 +86,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse refreshToken(String refreshToken) {
 
         String email = jwtTokenProvider.extractUsername(refreshToken);
-        UserEntity user = userRepository.findByEmail(email)
+        UserEntity user = userRepository.findByEmailAndIsDeletedFalseAndIsActiveTrue(email)
                 .orElseThrow(() -> new BadRequestException("Invalid refresh token"));
 
         if (!jwtTokenProvider.isTokenValid(refreshToken, user)) {
@@ -105,7 +105,7 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken = jwtTokenProvider.generateAccessToken(user);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
-        UserResponse userResponse = userMapper.toResponse(user);
+        UserSummaryResponse userResponse = userMapper.toSummaryResponse(user);
 
         return AuthResponse.of(accessToken, refreshToken, jwtExpiration, userResponse);
     }

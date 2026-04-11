@@ -5,7 +5,8 @@ import com.taskmaster.common.constants.AppConstants;
 import com.taskmaster.common.dto.ApiResponse;
 import com.taskmaster.common.dto.PagedResponse;
 import com.taskmaster.dto.request.UserUpdateRequest;
-import com.taskmaster.dto.response.UserResponse;
+import com.taskmaster.dto.response.UserDetailResponse;
+import com.taskmaster.dto.response.UserSummaryResponse;
 import com.taskmaster.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,37 +34,28 @@ public class UserController {
 
     private final UserService userService;
 
-    /**
-     * Get current logged-in user profile
-     */
     @GetMapping(ApiPaths.USER_ME)
     @PreAuthorize("hasAuthority('ROLE_USER') or hasAuthority('ROLE_ADMIN') or @userSecurity.isOwner(#id)")
     @Operation(summary = "Get current user", description = "Get the currently logged-in user's profile")
-    public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
+    public ResponseEntity<ApiResponse<UserDetailResponse>> getCurrentUser() {
         return ResponseEntity.ok(
                 ApiResponse.success(userService.getCurrentUser())
         );
     }
 
-    /**
-     * Get user by ID
-     */
     @GetMapping(ApiPaths.USER_BY_ID)
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or @userSecurity.isOwner(#id)")
     @Operation(summary = "Get user by ID", description = "Get user details by their ID")
-    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<UserDetailResponse>> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(
                 ApiResponse.success(userService.getUserById(id))
         );
     }
 
-    /**
-     * Update user
-     */
     @PutMapping(ApiPaths.USER_BY_ID)
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or @userSecurity.isOwner(#id)")
     @Operation(summary = "Update user", description = "Update user details")
-    public ResponseEntity<ApiResponse<UserResponse>> updateUser(
+    public ResponseEntity<ApiResponse<UserDetailResponse>> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UserUpdateRequest request) {
 
@@ -75,9 +67,6 @@ public class UserController {
         );
     }
 
-    /**
-     * Delete user (Admin only)
-     */
     @DeleteMapping(ApiPaths.USER_BY_ID)
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @Operation(summary = "Delete user", description = "Soft delete a user (Admin only)")
@@ -88,9 +77,6 @@ public class UserController {
         );
     }
 
-    /**
-     * Restore soft-deleted user (Admin only)
-     */
     @PutMapping(ApiPaths.USER_RESTORE)
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @Operation(summary = "Restore user", description = "Restore a soft-deleted user")
@@ -101,13 +87,10 @@ public class UserController {
         );
     }
 
-    /**
-     * Get all Active users with pagination (Admin only)
-     */
     @GetMapping(ApiPaths.USER_ACTIVE)
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @Operation(summary = "Get all users", description = "Get all users with pagination (Admin only)")
-    public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> getAllActiveUsers(
+    @Operation(summary = "Get all active users", description = "Get all active users with pagination (Admin only)")
+    public ResponseEntity<ApiResponse<PagedResponse<UserSummaryResponse>>> getAllActiveUsers(
             @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER)
             @Min(0) int page,
 
@@ -131,13 +114,10 @@ public class UserController {
         );
     }
 
-    /**
-     * Get all users with pagination (Admin only)
-     */
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @Operation(summary = "Get all users", description = "Get all users with pagination (Admin only)")
-    public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> getAllUsers(
+    public ResponseEntity<ApiResponse<PagedResponse<UserSummaryResponse>>> getAllUsers(
             @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER)
             @Min(0) int page,
 
@@ -161,13 +141,10 @@ public class UserController {
         );
     }
 
-    /**
-     * Search users (Admin only)
-     */
     @GetMapping(ApiPaths.USER_SEARCH)
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @Operation(summary = "Search users", description = "Search users by name or email (Admin only)")
-    public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> searchUsers(
+    public ResponseEntity<ApiResponse<PagedResponse<UserSummaryResponse>>> searchUsers(
             @RequestParam String query,
 
             @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER)

@@ -2,7 +2,8 @@ package com.taskmaster.service;
 
 import com.taskmaster.common.dto.PagedResponse;
 import com.taskmaster.dto.request.UserUpdateRequest;
-import com.taskmaster.dto.response.UserResponse;
+import com.taskmaster.dto.response.UserDetailResponse;
+import com.taskmaster.dto.response.UserSummaryResponse;
 import org.springframework.data.domain.Pageable;
 
 /**
@@ -13,17 +14,17 @@ public interface UserService {
     /**
      * Get user by ID
      */
-    UserResponse getUserById(Long id);
+    UserDetailResponse getUserById(Long id);
 
     /**
      * Get user by email
      */
-    UserResponse getUserByEmail(String email);
+    UserDetailResponse getUserByEmail(String email);
 
     /**
      * Update existing user
      */
-    UserResponse updateUser(Long id, UserUpdateRequest request);
+    UserDetailResponse updateUser(Long id, UserUpdateRequest request);
 
     /**
      * Delete user (soft delete)
@@ -35,17 +36,17 @@ public interface UserService {
     /**
      * Get all users with pagination
      */
-    PagedResponse<UserResponse> getAllUsers(Pageable pageable);
+    PagedResponse<UserSummaryResponse> getAllUsers(Pageable pageable);
 
-    PagedResponse<UserResponse> getAllActiveUsers(Pageable pageable);
+    PagedResponse<UserSummaryResponse> getAllActiveUsers(Pageable pageable);
 
     /**
      * Search users
      */
-    PagedResponse<UserResponse> searchUsers(String searchTerm, Pageable pageable);
+    PagedResponse<UserSummaryResponse> searchUsers(String searchTerm, Pageable pageable);
 
     /**
      * Get current logged-in user
      */
-    UserResponse getCurrentUser();
+    UserDetailResponse getCurrentUser();
 }

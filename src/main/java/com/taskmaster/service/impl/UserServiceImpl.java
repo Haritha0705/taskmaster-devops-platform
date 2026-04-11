@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserEntity findUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndIsDeletedFalseAndIsActiveTrue(email)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User", "email", email)
                 );

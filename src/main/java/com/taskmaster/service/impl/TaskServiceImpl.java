@@ -177,7 +177,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private UserEntity findUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndIsDeletedFalseAndIsActiveTrue(email)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User", "email", email)
                 );

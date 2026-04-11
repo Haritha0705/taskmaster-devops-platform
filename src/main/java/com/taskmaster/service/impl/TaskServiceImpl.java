@@ -125,7 +125,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(readOnly = true)
     public PagedResponse<TaskResponse> searchTasks(String term, Pageable pageable) {
-        Page<TaskEntity> page = taskRepository.searchTasks(term, pageable);
+        var page = taskRepository.searchTasks(term, pageable);
         return PagedResponse.of(page.map(taskMapper::toResponse));
     }
 
@@ -136,7 +136,7 @@ public class TaskServiceImpl implements TaskService {
             TaskPriority priority,
             Pageable pageable
     ) {
-        Page<TaskEntity> page = taskRepository.filterTasks(status, priority, pageable);
+        var page = taskRepository.filterTasks(status, priority, pageable);
         return PagedResponse.of(page.map(taskMapper::toResponse));
     }
 
@@ -149,7 +149,7 @@ public class TaskServiceImpl implements TaskService {
     public PagedResponse<TaskResponse> getTasksByCurrentUser(Pageable pageable) {
         UserEntity owner = getCurrentUser();
         Page<TaskEntity> page =
-                taskRepository.findByCreatedBy(owner, pageable);
+                taskRepository.findByCreatedByAndIsDeletedFalse(owner, pageable);
 
         return PagedResponse.of(page.map(taskMapper::toResponse));
     }
@@ -158,7 +158,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = true)
     public PagedResponse<TaskResponse> searchTasksForCurrentUser(String term, Pageable pageable) {
         Long userId = securityService.getCurrentUserId();
-        Page<TaskEntity> page = taskRepository.searchTasksForUser(term, userId, pageable);
+        var page = taskRepository.searchTasksForUser(term, userId, pageable);
         return PagedResponse.of(page.map(taskMapper::toResponse));
     }
 
@@ -170,7 +170,7 @@ public class TaskServiceImpl implements TaskService {
             Pageable pageable
     ) {
         Long userId = securityService.getCurrentUserId();
-        Page<TaskEntity> page =
+        var page =
                 taskRepository.filterTasksForUser(status, priority, userId, pageable);
 
         return PagedResponse.of(page.map(taskMapper::toResponse));

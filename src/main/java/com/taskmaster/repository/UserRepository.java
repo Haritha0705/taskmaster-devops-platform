@@ -11,51 +11,42 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-/**
- * Repository for User entity
- * Provides database operations for users
- */
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
-    /**
-     * Find user by email
-     */
     Optional<UserEntity> findByEmailAndIsDeletedFalseAndIsActiveTrue(String email);
 
-    /**
-     * Check if email exists
-     */
     boolean existsByEmail(String email);
 
-    /**
-     * Simple search by name or email
-     */
     @Query("""
         SELECT new com.taskmaster.dto.response.UserSummaryResponse(
                     u.id, u.firstName, u.lastName, u.email, u.role
                 )
                 FROM UserEntity u
                 WHERE u.isDeleted = false
+                AND (
+                    u.firstName LIKE CONCAT(:term, '%')
+                    OR u.lastName LIKE CONCAT(:term, '%')
+                    OR u.email LIKE CONCAT(:term, '%')
+                    )
     """)
     Page<UserSummaryResponse> searchUsers(@Param("term") String term, Pageable pageable);
 
 
-    @Query("SELECT u FROM UserEntity u WHERE u.isDeleted = false ")
+    @Query("SELECT u FROM UserEntity u WHERE u.isDeleted = false")
     Page<UserEntity> findAllActiveUsers(Pageable pageable);
 
     @Query("SELECT u FROM UserEntity u")
     Page<UserEntity> findAllUsers(Pageable pageable);
 
     @Query("""
-SELECT u FROM UserEntity u
-WHERE u.isDeleted = false AND
-u.firstName LIKE CONCAT(:term, '%')
-            OR u.lastName LIKE CONCAT(:term, '%')
-            OR u.email LIKE CONCAT(:term, '%')
-""")
+        SELECT u FROM UserEntity u
+        WHERE u.isDeleted = false AND
+        u.firstName LIKE CONCAT(:term, '%')
+        OR u.lastName LIKE CONCAT(:term, '%')
+        OR u.email LIKE CONCAT(:term, '%')
+    """)
     Page<UserEntity> searchActiveUsers(@Param("term") String term, Pageable pageable);
-
 }
 
 
